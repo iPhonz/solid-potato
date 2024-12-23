@@ -3,212 +3,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spill Trends Analysis</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background-color: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        h1, h2 {
-            color: #2c3e50;
-        }
-        h2 {
-            margin-top: 30px;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
-        }
-        .section {
-            margin-bottom: 40px;
-        }
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin: 20px 0;
-        }
-        .stat-card {
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 4px;
-            text-align: center;
-            transition: transform 0.2s;
-        }
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        .news-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-        .news-card {
-            background: white;
-            border: 1px solid #eee;
-            border-radius: 8px;
-            padding: 20px;
-            transition: transform 0.2s;
-        }
-        .news-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        .news-card h3 {
-            margin-top: 0;
-            color: #2c3e50;
-        }
-        .news-card .date {
-            color: #666;
-            font-size: 0.9em;
-            margin-bottom: 10px;
-        }
-        .loading {
-            text-align: center;
-            padding: 20px;
-            font-style: italic;
-            color: #666;
-        }
-        .filter-section {
-            margin: 20px 0;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 4px;
-        }
-        .filter-section input {
-            padding: 8px;
-            margin-right: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        .filter-section button {
-            padding: 8px 15px;
-            background: #2c3e50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .filter-section button:hover {
-            background: #34495e;
-        }
-    </style>
+    <title>SPILL Trends</title>
+    
+    <!-- React and ReactDOM -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide React Icons -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <h1>Spill Trends Analysis</h1>
-        <p>Welcome to our comprehensive analysis of environmental spill trends.</p>
-        
-        <div class="section">
-            <h2>Historical Trends</h2>
-            <p>Analysis of spill incidents over the past decade shows significant patterns in frequency and severity.</p>
-            <div class="stats">
-                <div class="stat-card">
-                    <h3>Annual Average</h3>
-                    <p>247 incidents</p>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // SpillTrends Component
+        const feeds = {
+            movies: 'https://rss.app/feeds/v1.1/_6QzByBP0Y0E9bL0O.json',
+            music: 'https://rss.app/feeds/v1.1/_p1hbSzosU9dbDQWx.json',
+            money: 'https://rss.app/feeds/v1.1/_fcZVOvvC7xA6iz8u.json',
+            popCulture: 'https://rss.app/feeds/v1.1/_8Tib7bkE02swlmp7.json',
+            sports: 'https://rss.app/feeds/v1.1/_5pZybCiMDbl5fBo8.json',
+            tech: 'https://rss.app/feeds/v1.1/_GNEAg9D5CvYRIxAQ.json'
+        };
+
+        const SpillTrends = () => {
+            const [articles, setArticles] = React.useState({});
+            const [loading, setLoading] = React.useState(true);
+            const [searchTerm, setSearchTerm] = React.useState('');
+            const [activeTab, setActiveTab] = React.useState('all');
+
+            React.useEffect(() => {
+                const fetchAllFeeds = async () => {
+                    setLoading(true);
+                    const articlesByTopic = {};
+                    
+                    for (const [topic, url] of Object.entries(feeds)) {
+                        try {
+                            const response = await fetch(url);
+                            const data = await response.json();
+                            articlesByTopic[topic] = data.items || [];
+                        } catch (error) {
+                            console.error(`Error fetching ${topic} feed:`, error);
+                            articlesByTopic[topic] = [];
+                        }
+                    }
+                    
+                    setArticles(articlesByTopic);
+                    setLoading(false);
+                };
+
+                fetchAllFeeds();
+            }, []);
+
+            const filterArticles = (articles) => {
+                if (!searchTerm) return articles;
+                
+                return articles.filter(article => 
+                    article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    article.description?.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+            };
+
+            const getDisplayArticles = () => {
+                if (activeTab === 'all') {
+                    const allArticles = Object.values(articles).flat();
+                    return filterArticles(allArticles);
+                }
+                return filterArticles(articles[activeTab] || []);
+            };
+
+            return (
+                <div className="min-h-screen bg-gray-100">
+                    {/* Header */}
+                    <header className="bg-white shadow">
+                        <div className="max-w-7xl mx-auto px-4 py-6">
+                            <h1 className="text-3xl font-bold text-gray-900">SPILL Trends</h1>
+                            
+                            {/* Search Bar */}
+                            <div className="mt-4 relative">
+                                <input
+                                    type="text"
+                                    placeholder="Search articles..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="w-full p-3 pl-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                                <lucide.Search className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* Navigation Tabs */}
+                    <nav className="bg-white shadow-sm">
+                        <div className="max-w-7xl mx-auto px-4">
+                            <div className="flex space-x-4 overflow-x-auto">
+                                <button
+                                    onClick={() => setActiveTab('all')}
+                                    className={`px-3 py-2 text-sm font-medium ${
+                                        activeTab === 'all'
+                                            ? 'text-blue-600 border-b-2 border-blue-600'
+                                            : 'text-gray-500 hover:text-gray-700'
+                                    }`}
+                                >
+                                    All
+                                </button>
+                                {Object.keys(feeds).map(topic => (
+                                    <button
+                                        key={topic}
+                                        onClick={() => setActiveTab(topic)}
+                                        className={`px-3 py-2 text-sm font-medium whitespace-nowrap ${
+                                            activeTab === topic
+                                                ? 'text-blue-600 border-b-2 border-blue-600'
+                                                : 'text-gray-500 hover:text-gray-700'
+                                        }`}
+                                    >
+                                        {topic.charAt(0).toUpperCase() + topic.slice(1)}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </nav>
+
+                    {/* Main Content */}
+                    <main className="max-w-7xl mx-auto px-4 py-6">
+                        {loading ? (
+                            <div className="text-center py-12">
+                                <div className="text-gray-500">Loading articles...</div>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {getDisplayArticles().map((article, index) => (
+                                    <article
+                                        key={article.id || index}
+                                        className="bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200"
+                                    >
+                                        {article.image && (
+                                            <img
+                                                src={article.image}
+                                                alt={article.title}
+                                                className="w-full h-48 object-cover rounded-t-lg"
+                                            />
+                                        )}
+                                        <div className="p-4">
+                                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                                {article.title}
+                                            </h3>
+                                            <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+                                                {article.description || article.summary}
+                                            </p>
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-sm text-gray-500">
+                                                    {new Date(article.published_at || article.date).toLocaleDateString()}
+                                                </span>
+                                                
+                                                    href={article.url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                                                >
+                                                    Read more
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </article>
+                                ))}
+                            </div>
+                        )}
+                        
+                        {!loading && getDisplayArticles().length === 0 && (
+                            <div className="text-center py-12">
+                                <p className="text-gray-500">No articles found matching your search.</p>
+                            </div>
+                        )}
+                    </main>
                 </div>
-                <div class="stat-card">
-                    <h3>Reduction Since 2020</h3>
-                    <p>15%</p>
-                </div>
-                <div class="stat-card">
-                    <h3>Response Time</h3>
-                    <p>45 minutes</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="section">
-            <h2>Latest Spill Reports</h2>
-            <div class="filter-section">
-                <input type="text" id="searchInput" placeholder="Search reports...">
-                <button onclick="filterNews()">Filter</button>
-            </div>
-            <div id="newsContainer" class="news-grid">
-                <div class="loading">Loading latest reports...</div>
-            </div>
-        </div>
-
-        <div class="section">
-            <h2>Prevention Measures</h2>
-            <p>Current regulations and best practices for spill prevention and management.</p>
-            <ul>
-                <li>Regular equipment maintenance and inspection protocols</li>
-                <li>Comprehensive staff training programs</li>
-                <li>Emergency response and containment procedures</li>
-                <li>Environmental impact assessment and monitoring</li>
-            </ul>
-        </div>
-    </div>
-
-    <script>
-        async function fetchNews() {
-            try {
-                const response = await fetch('https://rss.app/feeds/v1.1/_p1hbSzosU9dbDQWx.json');
-                const data = await response.json();
-                return data.items || [];
-            } catch (error) {
-                console.error('Error fetching news:', error);
-                return [];
-            }
-        }
-
-        function createNewsCard(item) {
-            const date = new Date(item.published_at || item.date);
-            return `
-                <div class="news-card">
-                    <h3>${item.title}</h3>
-                    <div class="date">${date.toLocaleDateString()}</div>
-                    <p>${item.description || item.summary}</p>
-                    <a href="${item.url}" target="_blank">Read more</a>
-                </div>
-            `;
-        }
-
-        async function displayNews(searchTerm = '') {
-            const container = document.getElementById('newsContainer');
-            container.innerHTML = '<div class="loading">Loading latest reports...</div>';
-
-            const news = await fetchNews();
-            const filteredNews = news.filter(item => 
-                item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                (item.description || item.summary).toLowerCase().includes(searchTerm.toLowerCase())
             );
+        };
 
-            if (filteredNews.length === 0) {
-                container.innerHTML = '<div class="loading">No results found</div>';
-                return;
-            }
-
-            container.innerHTML = filteredNews
-                .map(createNewsCard)
-                .join('');
-        }
-
-        function filterNews() {
-            const searchTerm = document.getElementById('searchInput').value;
-            displayNews(searchTerm);
-        }
-
-        // Initial load
-        displayNews();
-
-        // Add event listener for enter key on search input
-        document.getElementById('searchInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                filterNews();
-            }
-        });
+        // Render the app
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<SpillTrends />);
     </script>
 </body>
 </html>
