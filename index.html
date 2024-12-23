@@ -5,190 +5,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SPILL Trends</title>
     
-    <!-- React and ReactDOM -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <!-- Load React. -->
+    <!-- Note: when deploying, replace "development.js" with "production.min.js". -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
     
-    <!-- Babel for JSX -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    <!-- Load Babel for JSX support -->
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
     
-    <!-- Tailwind CSS -->
+    <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Lucide React Icons -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.js"></script>
 </head>
 <body>
+    <!-- We will render our React component inside this div -->
     <div id="root"></div>
 
+    <!-- Load our React component -->
     <script type="text/babel">
-        // SpillTrends Component
-        const feeds = {
-            movies: 'https://rss.app/feeds/v1.1/_6QzByBP0Y0E9bL0O.json',
-            music: 'https://rss.app/feeds/v1.1/_p1hbSzosU9dbDQWx.json',
-            money: 'https://rss.app/feeds/v1.1/_fcZVOvvC7xA6iz8u.json',
-            popCulture: 'https://rss.app/feeds/v1.1/_8Tib7bkE02swlmp7.json',
-            sports: 'https://rss.app/feeds/v1.1/_5pZybCiMDbl5fBo8.json',
-            tech: 'https://rss.app/feeds/v1.1/_GNEAg9D5CvYRIxAQ.json'
-        };
-
-        const SpillTrends = () => {
-            const [articles, setArticles] = React.useState({});
-            const [loading, setLoading] = React.useState(true);
-            const [searchTerm, setSearchTerm] = React.useState('');
-            const [activeTab, setActiveTab] = React.useState('all');
-
+        // Simple test component to verify React is working
+        function App() {
+            const [isLoading, setIsLoading] = React.useState(true);
+            
             React.useEffect(() => {
-                const fetchAllFeeds = async () => {
-                    setLoading(true);
-                    const articlesByTopic = {};
-                    
-                    for (const [topic, url] of Object.entries(feeds)) {
-                        try {
-                            const response = await fetch(url);
-                            const data = await response.json();
-                            articlesByTopic[topic] = data.items || [];
-                        } catch (error) {
-                            console.error(`Error fetching ${topic} feed:`, error);
-                            articlesByTopic[topic] = [];
-                        }
-                    }
-                    
-                    setArticles(articlesByTopic);
-                    setLoading(false);
-                };
-
-                fetchAllFeeds();
+                // Simulate loading
+                setTimeout(() => {
+                    setIsLoading(false);
+                }, 1000);
             }, []);
 
-            const filterArticles = (articles) => {
-                if (!searchTerm) return articles;
-                
-                return articles.filter(article => 
-                    article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    article.description?.toLowerCase().includes(searchTerm.toLowerCase())
-                );
-            };
-
-            const getDisplayArticles = () => {
-                if (activeTab === 'all') {
-                    const allArticles = Object.values(articles).flat();
-                    return filterArticles(allArticles);
-                }
-                return filterArticles(articles[activeTab] || []);
-            };
-
             return (
-                <div className="min-h-screen bg-gray-100">
-                    {/* Header */}
-                    <header className="bg-white shadow">
-                        <div className="max-w-7xl mx-auto px-4 py-6">
-                            <h1 className="text-3xl font-bold text-gray-900">SPILL Trends</h1>
-                            
-                            {/* Search Bar */}
-                            <div className="mt-4 relative">
-                                <input
-                                    type="text"
-                                    placeholder="Search articles..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full p-3 pl-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
-                                <lucide.Search className="absolute left-3 top-3.5 h-5 w-5 text-gray-400" />
-                            </div>
-                        </div>
-                    </header>
-
-                    {/* Navigation Tabs */}
-                    <nav className="bg-white shadow-sm">
-                        <div className="max-w-7xl mx-auto px-4">
-                            <div className="flex space-x-4 overflow-x-auto">
-                                <button
-                                    onClick={() => setActiveTab('all')}
-                                    className={`px-3 py-2 text-sm font-medium ${
-                                        activeTab === 'all'
-                                            ? 'text-blue-600 border-b-2 border-blue-600'
-                                            : 'text-gray-500 hover:text-gray-700'
-                                    }`}
-                                >
-                                    All
-                                </button>
-                                {Object.keys(feeds).map(topic => (
-                                    <button
-                                        key={topic}
-                                        onClick={() => setActiveTab(topic)}
-                                        className={`px-3 py-2 text-sm font-medium whitespace-nowrap ${
-                                            activeTab === topic
-                                                ? 'text-blue-600 border-b-2 border-blue-600'
-                                                : 'text-gray-500 hover:text-gray-700'
-                                        }`}
-                                    >
-                                        {topic.charAt(0).toUpperCase() + topic.slice(1)}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    </nav>
-
-                    {/* Main Content */}
-                    <main className="max-w-7xl mx-auto px-4 py-6">
-                        {loading ? (
-                            <div className="text-center py-12">
-                                <div className="text-gray-500">Loading articles...</div>
-                            </div>
-                        ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {getDisplayArticles().map((article, index) => (
-                                    <article
-                                        key={article.id || index}
-                                        className="bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200"
-                                    >
-                                        {article.image && (
-                                            <img
-                                                src={article.image}
-                                                alt={article.title}
-                                                className="w-full h-48 object-cover rounded-t-lg"
-                                            />
-                                        )}
-                                        <div className="p-4">
-                                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                                                {article.title}
-                                            </h3>
-                                            <p className="text-gray-600 text-sm mb-4 line-clamp-3">
-                                                {article.description || article.summary}
-                                            </p>
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-sm text-gray-500">
-                                                    {new Date(article.published_at || article.date).toLocaleDateString()}
-                                                </span>
-                                                
-                                                    href={article.url}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                                                >
-                                                    Read more
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </article>
-                                ))}
-                            </div>
-                        )}
-                        
-                        {!loading && getDisplayArticles().length === 0 && (
-                            <div className="text-center py-12">
-                                <p className="text-gray-500">No articles found matching your search.</p>
-                            </div>
-                        )}
-                    </main>
+                <div className="min-h-screen bg-gray-100 p-8">
+                    <h1 className="text-3xl font-bold text-center mb-8">
+                        SPILL Trends
+                    </h1>
+                    {isLoading ? (
+                        <p className="text-center">Loading...</p>
+                    ) : (
+                        <p className="text-center">Ready to display content!</p>
+                    )}
                 </div>
             );
-        };
+        }
 
-        // Render the app
         const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<SpillTrends />);
+        root.render(<App />);
     </script>
 </body>
 </html>
