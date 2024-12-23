@@ -5,50 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SPILL Trends</title>
     
-    <!-- Load React. -->
-    <!-- Note: when deploying, replace "development.js" with "production.min.js". -->
+    <!-- Core Scripts -->
     <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
-    
-    <!-- Load Babel for JSX support -->
     <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
     
-    <!-- Load Tailwind CSS -->
+    <!-- Styles -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Components -->
+    <script type="text/babel" src="js/components/Header.js"></script>
+    <script type="text/babel" src="js/components/Navigation.js"></script>
+    <script type="text/babel" src="js/components/ArticleCard.js"></script>
+    <script type="text/babel" src="js/components/ArticleGrid.js"></script>
+    <script type="text/babel" src="js/SpillTrends.js"></script>
 </head>
 <body>
-    <!-- We will render our React component inside this div -->
     <div id="root"></div>
-
-    <!-- Load our React component -->
     <script type="text/babel">
-        // Simple test component to verify React is working
-        function App() {
-            const [isLoading, setIsLoading] = React.useState(true);
-            
-            React.useEffect(() => {
-                // Simulate loading
-                setTimeout(() => {
-                    setIsLoading(false);
-                }, 1000);
-            }, []);
-
-            return (
-                <div className="min-h-screen bg-gray-100 p-8">
-                    <h1 className="text-3xl font-bold text-center mb-8">
-                        SPILL Trends
-                    </h1>
-                    {isLoading ? (
-                        <p className="text-center">Loading...</p>
-                    ) : (
-                        <p className="text-center">Ready to display content!</p>
-                    )}
-                </div>
-            );
-        }
-
         const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+        root.render(<SpillTrends />);
     </script>
 </body>
 </html>
